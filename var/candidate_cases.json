@@ -1,0 +1,64 @@
+{
+  "candidates": [
+    {
+      "id": "CAND-RX-20260907-0001",
+      "status": "已提升为 L01",
+      "alarm_code": "A203",
+      "phenomenon": "A203，设定 165°C，实际温度 152°C，加热电流正常有读数。",
+      "match_signals": {
+        "actual_temp": 152.0,
+        "alarm_code": "A203",
+        "heating_current_state": "normal",
+        "setpoint_temp": 165.0
+      },
+      "critical_signal": null,
+      "root_cause": "加热回路接触器触点老化产生压降，实际输出功率不足",
+      "disposition": "锁定挂牌后更换加热回路接触器并重压接线端子",
+      "verification": "设定 165°C，实际温度回升稳定在 165±2°C 连续 30 分钟，试产 200 件合格",
+      "authorization": "专家（电气）",
+      "source_work_order": "RX-20260907-0001",
+      "confirmed_by": "专家（电气）",
+      "created_at": "2026-09-07 20:22:30"
+    },
+    {
+      "id": "CAND-RX-20260909-0015",
+      "status": "已提升为 L02",
+      "alarm_code": "A205",
+      "phenomenon": "今天 14:20 封口头报警 A205，实际温度显示 188°C，设定 165°C，袋子有点发黄，要不要先降下来再试跑一批？",
+      "match_signals": {
+        "actual_temp": 188.0,
+        "alarm_code": "A205",
+        "discoloration": true,
+        "occurrence_time": "14:20",
+        "setpoint_temp": 165.0,
+        "wants_continue_run": true
+      },
+      "critical_signal": null,
+      "root_cause": "控制继电器粘连",
+      "disposition": "重启继电器",
+      "verification": "",
+      "authorization": "专家（电气）",
+      "source_work_order": "RX-20260909-0015",
+      "confirmed_by": "专家（电气）",
+      "created_at": "2026-09-09 16:53:05"
+    },
+    {
+      "id": "CAND-RX-20260909-0018",
+      "status": "无法沉淀：缺报警码",
+      "alarm_code": "",
+      "phenomenon": "厂房主管路 0.65 MPa，设备端 0.42 MPa，机后方有漏气声。",
+      "match_signals": {
+        "device_pressure": 0.42,
+        "leak_sound": true
+      },
+      "critical_signal": null,
+      "root_cause": "1",
+      "disposition": "1",
+      "verification": "",
+      "authorization": "专家（电气）",
+      "source_work_order": "RX-20260909-0018",
+      "confirmed_by": "专家（电气）",
+      "created_at": "2026-09-09 18:15:34"
+    }
+  ]
+}

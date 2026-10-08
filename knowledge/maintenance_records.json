@@ -1,0 +1,53 @@
+{
+  "_meta": {
+    "source": "APX-240 自动封装设备说明书 §5 维修记录",
+    "note": "说明书原文约束：维修记录只代表设备在当时的已确认状态，不能替代当前诊断；相同报警出现时，Agent 必须说明当前证据与历史记录的相同点和差异。"
+  },
+  "usage_constraints": [
+    "维修记录只可作为候选证据，不能因为「以前修过」而直接断言当前根因相同。",
+    "现场读数与历史不同，应优先解释差异并按报警码顺序排查。",
+    "涉及线路、加热回路、伺服、气路拆装或安全联锁时，必须遵守授权边界。"
+  ],
+  "records": [
+    {
+      "work_order": "WO-240-031",
+      "date": "2026-03-08",
+      "alarm_code": "A101",
+      "confirmed_cause": "P1 支架松动并有粉尘遮挡",
+      "work_done": "清洁 P1、校准位置、紧固支架",
+      "verification": "连续运行 500 袋无报警"
+    },
+    {
+      "work_order": "WO-240-042",
+      "date": "2026-04-16",
+      "alarm_code": "A203",
+      "confirmed_cause": "H1 加热回路开路",
+      "work_done": "锁定挂牌后由电气维修更换 H1 加热组件",
+      "verification": "165°C 稳定 30 分钟后试产合格"
+    },
+    {
+      "work_order": "WO-240-051",
+      "date": "2026-05-03",
+      "alarm_code": "A310",
+      "confirmed_cause": "气源过滤器滤芯堵塞",
+      "work_done": "停机泄压后更换滤芯、检查调压器",
+      "verification": "设备端压力稳定在 0.62 MPa"
+    },
+    {
+      "work_order": "WO-240-063",
+      "date": "2026-05-27",
+      "alarm_code": "A401",
+      "confirmed_cause": "G1 联锁位置偏移",
+      "work_done": "停机校准联锁位置并锁紧固定件",
+      "verification": "连续开关门 20 次，报警未复现"
+    },
+    {
+      "work_order": "WO-240-077",
+      "date": "2026-06-19",
+      "alarm_code": "A520",
+      "confirmed_cause": "主传动轴承磨损",
+      "work_done": "锁定挂牌后由机械专家更换轴承、检查传动对中",
+      "verification": "空载 15 分钟及试产 300 袋正常"
+    }
+  ]
+}

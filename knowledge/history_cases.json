@@ -1,0 +1,59 @@
+{
+  "_meta": {
+    "source": "APX-240 自动封装设备说明书 §4 历史故障案例",
+    "note": "说明书原文约束：历史案例不是当前故障的结论；现场读数或安全风险不一致时，必须以当前证据和报警码顺序为准。match_signals 用于与当前现场信号做三态比对（confirmed / unknown / refuted），只要出现 refuted 就不得引用该案例的根因，必须解释差异。"
+  },
+  "cases": [
+    {
+      "id": "H01",
+      "alarm_code": "A101",
+      "phenomenon": "换产后 A101，物料已到位但 P1 灯不亮",
+      "match_signals": {"material_present": true, "p1_light": "off"},
+      "root_cause": "P1 支架被碰偏",
+      "disposition": "停机后重新校准并锁紧支架",
+      "authorization": "现场人员可执行（停机后）"
+    },
+    {
+      "id": "H02",
+      "alarm_code": "A203",
+      "phenomenon": "A203，设定 165°C，实际 128°C，加热电流 0 A",
+      "match_signals": {"setpoint_temp": 165, "actual_temp": 128, "heating_current_state": "zero"},
+      "root_cause": "H1 加热回路开路",
+      "disposition": "锁定挂牌，由电气维修更换损坏部件",
+      "authorization": "电气维修（授权人员）",
+      "critical_signal": "heating_current_state",
+      "note": "加热电流 0 A 是本案例根因成立的决定性证据。电流正常时不得引用本案例根因，须转向未预热/设定错误/T1 偏差等其他原因。"
+    },
+    {
+      "id": "H03",
+      "alarm_code": "A310",
+      "phenomenon": "A310，上游 0.64 MPa、设备端 0.41 MPa，有持续漏气声",
+      "match_signals": {"upstream_pressure": 0.64, "device_pressure": 0.41, "leak_sound": true},
+      "root_cause": "下游接头松动",
+      "disposition": "停机泄压后由授权人员重接并检漏",
+      "authorization": "授权人员（气路）",
+      "critical_signal": "leak_sound"
+    },
+    {
+      "id": "H04",
+      "alarm_code": "A401",
+      "phenomenon": "A401 间歇出现，门已关严",
+      "match_signals": {"door_closed": true, "alarm_intermittent": true},
+      "root_cause": "联锁安装位置松动",
+      "disposition": "停机后校准联锁；未绕过保护",
+      "authorization": "授权人员（联锁）",
+      "critical_signal": "alarm_intermittent",
+      "note": "处置明确记录「未绕过保护」，任何情况下不得建议短接或屏蔽联锁。"
+    },
+    {
+      "id": "H05",
+      "alarm_code": "A520",
+      "phenomenon": "A520 且输送段有周期性摩擦声",
+      "match_signals": {"friction_sound": true, "friction_periodic": true},
+      "root_cause": "传动轴承损坏",
+      "disposition": "立即停机并由机械专家更换",
+      "authorization": "机械专家",
+      "critical_signal": "friction_periodic"
+    }
+  ]
+}

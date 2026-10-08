@@ -1,0 +1,159 @@
+{
+  "_meta": {
+    "source": "APX-240 自动封装设备说明书 §3 报警码说明",
+    "note": "steps 为说明书原文给出的安全排查顺序，顺序不可重排。derived 为按 §2 安全红线推导的执行属性。cause_evidence 把「证据强弱排序」编码为数据而非模型判断：when 为空表示只能靠排除法确认，一律记为弱证据；needs 列出区分该原因所必需的观测项，缺失时该原因不得升为强证据。",
+    "condition_ops": {
+      "eq": "信号等于 value",
+      "ne": "信号不等于 value",
+      "true": "信号为真",
+      "false": "信号为假",
+      "unknown": "信号未提供",
+      "below_param": "信号低于 device_params 中 param_key 的下限",
+      "above_param": "信号高于 device_params 中 param_key 的上限"
+    }
+  },
+  "alarm_codes": [
+    {
+      "code": "A101",
+      "meaning": "P1 进料检测超时",
+      "common_causes": ["无物料", "P1 被遮挡/偏移", "输送带打滑", "P1 线路故障"],
+      "steps": ["确认物料", "观察 P1 指示灯", "停机清洁/校准", "授权人员查线路"],
+      "derived": {
+        "severity": "中",
+        "escalate_to_expert": false,
+        "forbid_continue_run": false,
+        "requires_lockout": true,
+        "authorization": "电气（仅线路检查环节）",
+        "required_observations": ["物料是否到位", "P1 指示灯状态", "输送带是否打滑", "是否换产/调整过工位"]
+      },
+      "cause_evidence": [
+        {"cause": "无物料", "when": [{"signal": "material_present", "op": "false"}], "strength": "强", "needs": ["物料是否到位"]},
+        {"cause": "P1 被遮挡/偏移", "when": [{"signal": "material_present", "op": "true"}, {"signal": "p1_light", "op": "eq", "value": "off"}], "strength": "强", "needs": ["物料是否到位", "P1 指示灯状态"], "linked_case": "H01"},
+        {"cause": "输送带打滑", "when": [{"signal": "belt_slipping", "op": "true"}], "strength": "强", "needs": ["输送带是否打滑"]},
+        {"cause": "P1 线路故障", "when": [], "strength": "弱", "needs": ["授权人员查线路结果"], "note": "排除法结论，须在前述原因排除并由授权人员检查线路后才能成立"}
+      ]
+    },
+    {
+      "code": "A203",
+      "meaning": "热封温度低",
+      "common_causes": ["未预热", "设定错误", "加热器开路", "继电器/线路故障", "T1 偏差"],
+      "steps": ["核对设定与预热", "读实际温度和加热电流", "停机锁定", "授权电气人员检查"],
+      "derived": {
+        "severity": "中",
+        "escalate_to_expert": false,
+        "forbid_continue_run": false,
+        "requires_lockout": true,
+        "authorization": "电气（加热回路与线路）",
+        "required_observations": ["设定温度", "实际温度", "加热电流", "是否已完成预热", "T1 接线状态"]
+      },
+      "cause_evidence": [
+        {"cause": "未预热", "when": [{"signal": "preheated", "op": "false"}], "strength": "强", "needs": ["是否已完成预热"]},
+        {"cause": "设定错误", "when": [{"signal": "setpoint_temp", "op": "ne", "value": 165}], "strength": "强", "needs": ["设定温度"], "note": "说明书 §1 规定热封设定温度为 165°C"},
+        {"cause": "加热器开路", "when": [{"signal": "heating_current_state", "op": "eq", "value": "zero"}], "strength": "强", "needs": ["加热电流"], "linked_case": "H02"},
+        {"cause": "继电器/线路故障", "when": [{"signal": "heating_current_state", "op": "eq", "value": "normal"}, {"signal": "actual_temp", "op": "below_param", "param_key": "heat_seal_stable_range"}], "strength": "中", "needs": ["加热电流", "实际温度"]},
+        {"cause": "T1 偏差", "when": [{"signal": "heating_current_state", "op": "eq", "value": "normal"}], "strength": "弱", "needs": ["T1 接线状态", "对照实测温度"], "note": "需授权电气人员对照 T1 读数与实测温度才能确认"}
+      ]
+    },
+    {
+      "code": "A205",
+      "meaning": "热封温度高",
+      "common_causes": ["控制继电器粘连", "T1 松脱", "控制回路故障"],
+      "steps": ["立即停机", "隔离电源", "等待冷却", "专家检查，禁止继续试运行"],
+      "derived": {
+        "severity": "高",
+        "escalate_to_expert": true,
+        "forbid_continue_run": true,
+        "requires_lockout": true,
+        "requires_power_isolation": true,
+        "requires_cooldown": true,
+        "authorization": "专家（禁止现场自行处理）",
+        "required_observations": ["实际温度", "设定温度", "继电器是否粘连", "T1 是否松脱"]
+      },
+      "cause_evidence": [
+        {"cause": "控制继电器粘连", "when": [{"signal": "actual_temp", "op": "above_param", "param_key": "heat_seal_stable_range"}, {"signal": "heating_current_state", "op": "eq", "value": "normal"}], "strength": "中", "needs": ["实际温度", "加热电流"], "note": "超温且仍有加热电流，指向继电器无法断开"},
+        {"cause": "T1 松脱", "when": [{"signal": "actual_temp", "op": "above_param", "param_key": "heat_seal_stable_range"}], "strength": "弱", "needs": ["T1 是否松脱"], "note": "需专家断电冷却后检查，现场不得自行判断"},
+        {"cause": "控制回路故障", "when": [], "strength": "弱", "needs": ["专家检查结论"], "note": "排除法结论，仅专家可确认"}
+      ]
+    },
+    {
+      "code": "A310",
+      "meaning": "气压低",
+      "common_causes": ["上游供气低", "过滤器堵塞", "调压器异常", "下游管路泄漏"],
+      "steps": ["比较上游/设备压力", "听漏气", "停机泄压", "授权人员检查"],
+      "derived": {
+        "severity": "中",
+        "escalate_to_expert": false,
+        "forbid_continue_run": false,
+        "requires_lockout": true,
+        "requires_depressurization": true,
+        "authorization": "授权人员（气路拆装）",
+        "required_observations": ["上游压力", "设备端压力", "是否听到持续漏气声", "过滤器滤芯状态"]
+      },
+      "cause_evidence": [
+        {"cause": "上游供气低", "when": [{"signal": "upstream_pressure", "op": "below_param", "param_key": "inlet_air_pressure"}], "strength": "强", "needs": ["上游压力"]},
+        {"cause": "下游管路泄漏", "when": [{"signal": "leak_sound", "op": "true"}, {"signal": "device_pressure", "op": "below_param", "param_key": "inlet_air_pressure"}], "strength": "强", "needs": ["是否听到持续漏气声", "设备端压力"], "linked_case": "H03"},
+        {"cause": "过滤器堵塞", "when": [{"signal": "leak_sound", "op": "false"}, {"signal": "device_pressure", "op": "below_param", "param_key": "inlet_air_pressure"}], "strength": "中", "needs": ["过滤器滤芯状态", "是否听到持续漏气声"], "linked_work_order": "WO-240-051"},
+        {"cause": "调压器异常", "when": [], "strength": "弱", "needs": ["授权人员检查调压器结论"], "note": "排除法结论"}
+      ]
+    },
+    {
+      "code": "A401",
+      "meaning": "安全门未闭合",
+      "common_causes": ["门未关", "联锁位置偏移", "联锁线路故障"],
+      "steps": ["确认门体无异物并重新关闭", "仍报警则停机", "授权人员检查"],
+      "derived": {
+        "severity": "高",
+        "escalate_to_expert": false,
+        "forbid_continue_run": false,
+        "requires_lockout": true,
+        "authorization": "授权人员（联锁线路）",
+        "forbid_bypass_interlock": true,
+        "required_observations": ["门体是否已关严", "门内是否有异物", "报警是否间歇出现", "联锁安装位置是否松动"]
+      },
+      "cause_evidence": [
+        {"cause": "门未关", "when": [{"signal": "door_closed", "op": "false"}], "strength": "强", "needs": ["门体是否已关严"]},
+        {"cause": "联锁位置偏移", "when": [{"signal": "door_closed", "op": "true"}, {"signal": "alarm_intermittent", "op": "true"}], "strength": "强", "needs": ["门体是否已关严", "报警是否间歇出现"], "linked_case": "H04"},
+        {"cause": "联锁线路故障", "when": [{"signal": "door_closed", "op": "true"}, {"signal": "alarm_intermittent", "op": "false"}], "strength": "中", "needs": ["门体是否已关严", "报警是否间歇出现"], "note": "门已关严且持续报警，间歇性原因被排除，指向联锁线路"}
+      ]
+    },
+    {
+      "code": "A520",
+      "meaning": "S1 伺服过载",
+      "common_causes": ["机械卡阻", "负载过大", "传动件损坏", "伺服参数异常"],
+      "steps": ["停机", "锁定挂牌", "检查可见卡阻/传动", "机械或电气专家处理"],
+      "derived": {
+        "severity": "高",
+        "escalate_to_expert": true,
+        "forbid_continue_run": true,
+        "requires_lockout": true,
+        "authorization": "机械或电气专家",
+        "required_observations": ["输送段是否有摩擦声及其周期性", "是否有可见卡阻", "负载是否异常", "传动件状态"]
+      },
+      "cause_evidence": [
+        {"cause": "机械卡阻", "when": [{"signal": "visible_jam", "op": "true"}], "strength": "强", "needs": ["是否有可见卡阻"]},
+        {"cause": "传动件损坏", "when": [{"signal": "friction_periodic", "op": "true"}], "strength": "强", "needs": ["输送段是否有摩擦声及其周期性"], "linked_case": "H05", "linked_work_order": "WO-240-077"},
+        {"cause": "负载过大", "when": [{"signal": "friction_sound", "op": "false"}, {"signal": "visible_jam", "op": "false"}], "strength": "弱", "needs": ["负载是否异常"]},
+        {"cause": "伺服参数异常", "when": [], "strength": "弱", "needs": ["专家检查伺服参数结论"], "note": "排除法结论，仅专家可确认"}
+      ]
+    },
+    {
+      "code": "A900",
+      "meaning": "控制器通信中断",
+      "common_causes": ["网络线松动", "交换模块故障", "控制器掉电"],
+      "steps": ["记录受影响模块", "检查面板状态", "停机后检查外部连接", "控制专家处理"],
+      "derived": {
+        "severity": "高",
+        "escalate_to_expert": true,
+        "forbid_continue_run": false,
+        "requires_lockout": true,
+        "authorization": "控制专家",
+        "required_observations": ["受影响模块清单", "操作面板状态", "控制器是否掉电", "网络线连接状态"]
+      },
+      "cause_evidence": [
+        {"cause": "网络线松动", "when": [], "strength": "弱", "needs": ["网络线连接状态"], "note": "停机后检查外部连接方可确认"},
+        {"cause": "交换模块故障", "when": [], "strength": "弱", "needs": ["控制专家检查结论"], "note": "排除法结论"},
+        {"cause": "控制器掉电", "when": [], "strength": "弱", "needs": ["操作面板状态", "控制器是否掉电"]}
+      ]
+    }
+  ]
+}

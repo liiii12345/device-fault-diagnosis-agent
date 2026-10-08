@@ -1,0 +1,58 @@
+{
+  "_meta": {
+    "source": "APX-240 自动封装设备说明书 §2 安全红线 + Agent 的安全职责",
+    "note": "本表为硬门控。trigger_kind=input_keyword 表示由现场描述触发；trigger_kind=user_request 表示由用户请求触发（对抗性场景，必须拒绝）；trigger_kind=computed 表示由覆盖度与证据一致性计算触发。安全门控输出不可被语言模型覆盖。"
+  },
+  "agent_safety_duty": "Agent 只能基于现场描述、报警码、历史案例和维修记录提出有证据的排查建议。它必须区分「已知事实」「可能原因」和「需要授权人员执行的操作」，不得给出绕过联锁、带电拆线或继续危险运行的建议。",
+  "safety_rules": [
+    {
+      "id": "SAFE-01",
+      "trigger_kind": "input_keyword",
+      "requirement": "出现烟雾、焦味、异常高温、剧烈振动、金属摩擦声或部件松脱时，立即停机并升级专家。",
+      "signals": ["smoke", "burning_smell", "abnormal_high_temp", "violent_vibration", "metal_friction_sound", "part_loose"],
+      "keywords": ["烟雾", "冒烟", "焦味", "烧焦", "糊味", "异常高温", "剧烈振动", "强烈振动", "剧烈抖动", "金属摩擦", "摩擦声", "部件松脱", "零件松脱", "松脱"],
+      "mandatory_actions": ["立即停机", "升级专家"],
+      "escalate_to_expert": true,
+      "forbid_continue_run": true,
+      "severity": "高"
+    },
+    {
+      "id": "SAFE-02",
+      "trigger_kind": "action_precondition",
+      "requirement": "打开防护罩、清除夹料、检查线路或接触加热组件前，必须断电、锁定、挂牌，并确认残余能量释放。",
+      "keywords": ["打开防护罩", "清除夹料", "清理夹料", "检查线路", "接触加热组件", "拆开", "开罩"],
+      "mandatory_actions": ["断电", "锁定挂牌", "确认残余能量释放"],
+      "applies_to_steps_containing": ["停机锁定", "锁定挂牌", "停机清洁/校准", "授权人员查线路", "授权电气人员检查", "停机泄压", "检查可见卡阻/传动"],
+      "severity": "高"
+    },
+    {
+      "id": "SAFE-03",
+      "trigger_kind": "user_request",
+      "requirement": "禁止短接安全门、绕过报警、带电插拔线路或徒手触碰加热部件。",
+      "keywords": ["短接", "绕过报警", "屏蔽报警", "屏蔽联锁", "屏蔽安全门", "临时解除", "解除联锁", "带电插拔", "带电拆线", "徒手触碰", "徒手接触", "先跑起来", "赶产量", "忽略报警", "关掉报警", "不用停机"],
+      "mandatory_actions": ["明确拒绝该请求", "说明本操作被 SAFE-03 禁止", "给出合规替代路径"],
+      "refuse": true,
+      "escalate_to_expert": true,
+      "severity": "高"
+    },
+    {
+      "id": "SAFE-04",
+      "trigger_kind": "authorization_boundary",
+      "requirement": "仅授权电气/机械维修人员可执行拆线、绝缘测试、伺服或加热回路维修。",
+      "keywords": ["拆线", "绝缘测试", "伺服维修", "加热回路维修", "更换加热组件", "更换轴承", "重接管路"],
+      "mandatory_actions": ["标注该操作仅限授权电气/机械维修人员执行", "Agent 不得指导非授权人员操作"],
+      "authorization_required": true,
+      "severity": "高"
+    },
+    {
+      "id": "SAFE-05",
+      "trigger_kind": "computed",
+      "requirement": "知识库无覆盖、证据矛盾或风险无法判断时，停止进一步操作并升级专家。",
+      "conditions": ["coverage_none", "evidence_conflict", "risk_undeterminable"],
+      "mandatory_actions": ["停止进一步排查", "升级专家", "列出需要补充的信息"],
+      "escalate_to_expert": true,
+      "forbid_continue_run": true,
+      "severity": "高"
+    }
+  ]
+}

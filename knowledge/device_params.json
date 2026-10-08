@@ -1,0 +1,54 @@
+{
+  "_meta": {
+    "source": "APX-240 自动封装设备说明书 §1 设备概述与正常参数",
+    "note": "设备相关配置。更换设备型号时只需替换本文件与 alarm_codes/history_cases/maintenance_records，无需改动代码。"
+  },
+  "device_model": "APX-240",
+  "device_purpose": "袋装产品的输送、定位、热封和成品输出",
+  "modules": [
+    {"id": "P1", "name": "入口光电传感器", "role": "检测物料是否到达入口位置。"},
+    {"id": "S1", "name": "主伺服", "role": "驱动主输送和定位。"},
+    {"id": "H1/H2", "name": "热封加热器", "role": "提供热封温度。"},
+    {"id": "T1/T2", "name": "温度传感器", "role": "采集热封温度。"},
+    {"id": "AIR", "name": "气源过滤调压组件", "role": "向执行部件提供稳定气压。"},
+    {"id": "G1", "name": "安全门联锁", "role": "确保防护门关闭后才允许设备运行。"},
+    {"id": "CTRL", "name": "控制器与操作面板", "role": "处理控制逻辑、状态显示和报警信息。"}
+  ],
+  "normal_params": [
+    {
+      "key": "heat_seal_setpoint",
+      "item": "热封设定温度",
+      "value": 165,
+      "unit": "°C",
+      "kind": "target"
+    },
+    {
+      "key": "heat_seal_stable_range",
+      "item": "热封稳定范围",
+      "min": 160,
+      "max": 170,
+      "unit": "°C",
+      "kind": "range"
+    },
+    {
+      "key": "inlet_air_pressure",
+      "item": "设备入口气压",
+      "min": 0.55,
+      "max": 0.70,
+      "unit": "MPa",
+      "kind": "range"
+    },
+    {
+      "key": "safety_door_state",
+      "item": "安全门状态",
+      "requirement": "设备运行时必须关闭",
+      "kind": "state"
+    },
+    {
+      "key": "conveyor_area",
+      "item": "输送区域",
+      "requirement": "不得存在异物或卡料",
+      "kind": "state"
+    }
+  ]
+}
